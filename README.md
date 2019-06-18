@@ -1,0 +1,2 @@
+# Amazy
+A maze generator.
