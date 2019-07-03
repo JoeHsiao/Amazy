@@ -1,9 +1,11 @@
 from random import shuffle
 
 class Maze:
-    def __init__(self, r = 2, c = 2):
+    def __init__(self, r = 20, c = 20):
         self.cell_sym = 'o'
         self.wall_sym = '*'
+        self.start_sym = 'S'
+        self.goal_sym = 'G'
         self.R = r
         self.C = c
         self.start = (0, 0)
@@ -16,11 +18,10 @@ class Maze:
 
     def create(self):
         def DFS(r, c):
-            if r == self.goal[0] and c == self.goal[1]:
-                self.cells[r][c] = 0
-                return
             self.cells[r][c] = 0
-            dirs, offsets = [0, 1, 2, 3], [(-1, 0), (1, 0), (-1, 0), (1, 0)]
+            if r == self.goal[0] and c == self.goal[1]:
+                return
+            dirs, offsets = [0, 1, 2, 3], [(0, -1), (0, 1), (-1, 0), (1, 0)]
             shuffle(dirs)
             for d in dirs:
                 new_r, new_c = r + offsets[d][0], c + offsets[d][1]
@@ -44,8 +45,10 @@ class Maze:
             lr_path, ud_path = self.wall_sym, self.wall_sym
             for c in range(self.C):
                 # draw cell
-                if self.cells[r][c] == 0: lr_path += '   ' # space x 3
-                else: lr_path += ' ' + self.cell_sym + ' '
+                if r == self.start[0] and c == self.start[1]: lr_path += ' ' + self.start_sym + ' '
+                elif r == self.goal[0] and c == self.goal[1]: lr_path += ' ' + self.goal_sym + ' '
+                else: lr_path += '   ' # space x 3
+                #else: lr_path += ' ' + self.cell_sym + ' ' # should not reach here
                 
                 # draw righ path
                 if self.walls[r][c][1] == 1: lr_path += ' '
