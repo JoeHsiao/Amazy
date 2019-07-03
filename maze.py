@@ -1,0 +1,64 @@
+from random import shuffle
+
+class Maze:
+    def __init__(self, r = 2, c = 2):
+        self.cell_sym = 'o'
+        self.wall_sym = '*'
+        self.R = r
+        self.C = c
+        self.start = (0, 0)
+        self.goal = (self.R-1, self.C-1)
+        # each cell has 4 walls: left, right, up, down
+        self.cells = [[1 for _ in range(self.C)] for _ in range(self.R)]  #1: not visited. 0: visited
+        self.walls = [[[0, 0, 0, 0] for _ in range(self.C)] for _ in range(self.R)]  #0: wall, 1: path
+
+        self.create()
+
+    def create(self):
+        def DFS(r, c):
+            if r == self.goal[0] and c == self.goal[1]:
+                self.cells[r][c] = 0
+                return
+            self.cells[r][c] = 0
+            dirs, offsets = [0, 1, 2, 3], [(-1, 0), (1, 0), (-1, 0), (1, 0)]
+            shuffle(dirs)
+            for d in dirs:
+                new_r, new_c = r + offsets[d][0], c + offsets[d][1]
+                if 0 <= new_r < self.R and 0 <= new_c < self.C and self.cells[new_r][new_c] == 1:
+                    self.walls[r][c][d] = 1
+                    self.walls[new_r][new_c][d+1 if d%2 == 0 else d-1] = 1
+                    DFS(new_r, new_c)
+        DFS(*self.start)
+
+    def __str__(self):
+        # even rows are paths between up and down
+        # odd rows are paths betwen left and right
+        # ex: 2x2
+        #     * * * * *
+        #     *   *   *
+        #     * * * * *
+        #     *   *   *
+        #     * * * * *
+        mat = [' '.join([self.wall_sym for _ in range(self.C*3-self.C+1)])]
+        for r in range(self.R):
+            lr_path, ud_path = self.wall_sym, self.wall_sym
+            for c in range(self.C):
+                # draw cell
+                if self.cells[r][c] == 0: lr_path += '   ' # space x 3
+                else: lr_path += ' ' + self.cell_sym + ' '
+                
+                # draw righ path
+                if self.walls[r][c][1] == 1: lr_path += ' '
+                else: lr_path += self.wall_sym
+                
+                # draw down path
+                if self.walls[r][c][3] == 1: ud_path += '   ' + self.wall_sym
+                else: ud_path += ' ' + self.wall_sym + ' ' + self.wall_sym
+            mat.append(lr_path)
+            mat.append(ud_path)
+        return '\n'.join(mat)
+if __name__ == '__main__':
+    maze = Maze()
+    print(maze)
+
+
